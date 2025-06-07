@@ -1,0 +1,70 @@
+body {
+    font-family: 'Segoe UI', sans-serif;
+    background: #f0f2f5;
+    margin: 0;
+    padding: 30px;
+  }
+  
+  h1 {
+    text-align: center;
+    color: #333;
+    margin-bottom: 30px;
+  }
+  
+  .flashcard-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+  }
+  
+  .flashcard {
+    width: 600px;
+    max-width: 90%;
+    perspective: 1000px;
+    border-radius: 15px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    position: relative;
+    padding-bottom: 50px;
+  }
+  
+  
+  .flashcard .front {
+    padding: 20px;
+    font-weight: 600;
+    color: #333;
+    font-size: 1.1rem;
+    transition: color 0.3s;
+    background: white;
+    cursor: pointer;
+  }
+
+  .flashcard .back {
+    padding: 20px;
+    padding-top: 0px;
+    cursor: pointer;
+    transition: transform 0.6s;
+    backface-visibility: hidden;
+    position: relative;
+    font-size: 1.05rem;
+    display: none;
+    color: #444;
+    background: #fefefe;
+  }
+  
+
+  
+  .flashcard.flipped .back {
+    display: block;
+  }
+  
+  .flashcard.flipped .front {
+    font-weight: bold;
+    color: #2c3e50;
+  }
+
+  .sound, .source {color: blue; font-size: 30px; position: absolute; bottom: 1%; left: 95%; margin: 0; cursor: pointer;}
+
+  .sourceBox {z-index: 999; position: absolute; background-color: white; border: 2px solid black;padding: 10px; width: 300px; left: 50%; right: 50%;}
+
+  .close {color: red; font-size: 22px; position: absolute; top: 3%; left: 95%; margin: 0; cursor: pointer;}
