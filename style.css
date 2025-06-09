@@ -3,33 +3,86 @@ body {
     background: #f0f2f5;
     margin: 0;
     padding: 30px;
-  }
-  
-  h1 {
-    text-align: center;
-    color: #333;
-    margin-bottom: 30px;
-  }
-  
-  .flashcard-container {
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
+}
+
+/* Main app content wrapper to give sections a max-width */
+.app-main-content {
+    max-width: 650px; /* Adjust as needed */
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* Section Styling (Accordion Panel) */
+.flashcard-section {
+    margin-bottom: 20px; /* Space between sections */
+    background-color: #ffffff0c;
+    border-radius: 15px; /* Matches your flashcard radius */
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Matches your flashcard shadow */
+    overflow: hidden; /* Ensures child elements respect border-radius */
+}
+
+/* Section Header (Clickable Accordion Title) */
+.section-header {
+    background-color: #007bff; /* A clean blue for section headers */
+    color: white;
+    padding: 20px;
+    cursor: pointer;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    transition: background-color 0.2s ease;
+    border-radius: 15px 15px 0 0; /* Rounded top corners */
+}
+
+.section-header:hover {
+    background-color: #0056b3; /* Darker blue on hover */
+}
+
+.section-header h1 { /* Targeting the h1 inside the section header */
+    margin: 0;
+    font-size: 1.8rem; /* Adjusted for section title */
+    color: white; /* Ensure text is white */
+}
+
+/* Accordion Icon for Sections */
+.section-header::after {
+    content: '+'; /* Plus icon by default for collapsed state */
+    font-size: 2rem;
+    line-height: 1;
+    transition: transform 0.3s ease;
+    font-weight: normal;
+}
+
+.flashcard-section.is-expanded .section-header::after {
+    content: '-'; /* Minus icon when section is expanded */
+    transform: rotate(180deg);
+}
+
+/* Flashcard Container (Hidden by default, shown when section is expanded) */
+.flashcard-container {
+    display: none; /* Controlled by JavaScript */
+    flex-direction: column; /* Your original flex-direction */
     align-items: center;
     gap: 20px;
-  }
-  
-  .flashcard {
+    padding: 20px; /* Padding inside the section once opened */
+    border-top: 1px solid #e0e0e0; /* Separator between header and content */
+}
+
+/* --- Your Existing Flashcard Styles (with minor adjustments for integration) --- */
+.flashcard {
     width: 600px;
     max-width: 90%;
     perspective: 1000px;
     border-radius: 15px;
     box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     position: relative;
-    padding-bottom: 50px;
-  }
-  
-  
-  .flashcard .front {
+    overflow: hidden; /* Ensures content stays within rounded corners */
+}
+
+.flashcard .front {
     padding: 20px;
     font-weight: 600;
     color: #333;
@@ -37,34 +90,123 @@ body {
     transition: color 0.3s;
     background: white;
     cursor: pointer;
-  }
+    border-radius: 15px; /* Ensure rounded corners */
+    min-height: 60px; /* Give some space */
+    display: flex; /* Helps vertically center text */
+    align-items: center;
+}
 
-  .flashcard .back {
+.flashcard .back {
     padding: 20px;
     padding-top: 0px;
     cursor: pointer;
-    transition: transform 0.6s;
-    backface-visibility: hidden;
+    /* transition: transform 0.6s; Removed as we're not doing a 3D flip now, just display toggle */
+    backface-visibility: hidden; /* Still good to have if you re-introduce 3D transforms */
     position: relative;
     font-size: 1.05rem;
-    display: none;
+    display: none; /* Controlled by JS toggleCard */
     color: #444;
     background: #fefefe;
-  }
-  
+    border-radius: 0 0 15px 15px; /* Rounded bottom corners */
+}
 
-  
-  .flashcard.flipped .back {
-    display: block;
-  }
-  
-  .flashcard.flipped .front {
+.flashcard.flipped .back {
+    display: block; /* Shows the back content */
+}
+
+.flashcard.flipped .front {
     font-weight: bold;
     color: #2c3e50;
-  }
+    border-radius: 15px 15px 0 0; /* Keep top rounded, but square bottom when expanded */
+}
 
-  .sound, .source {color: blue; font-size: 30px; position: absolute; bottom: 1%; left: 95%; margin: 0; cursor: pointer;}
+.source, .sound {
+    color: #007bff; /* Blue for source link */
+    font-size: 24px; /* Adjusted font size for icon */
+    position: absolute;
+    bottom: 10px; /* Adjusted position */
+    right: 20px; /* Adjusted position */
+    margin: 0;
+    cursor: pointer;
+    font-weight: bold; /* Make 'S' more prominent */
+    user-select: none; /* Prevent text selection */
+    z-index: 1; /* Ensure it's above other elements if needed */
+}
 
-  .sourceBox {z-index: 999; position: absolute; background-color: white; border: 2px solid black;padding: 10px; width: 300px; left: 50%; right: 50%;}
+.sourceBox {
+    z-index: 1000; /* Ensure it's on top */
+    position: absolute;
+    background-color: white;
+    border: 1px solid #ddd; /* Lighter border */
+    border-radius: 8px;
+    padding: 15px;
+    width: calc(100% - 60px); /* Adjust width to fit within flashcard padding */
+    left: 20px; /* Align with flashcard padding */
+    bottom: 0; /* Position at the bottom of the flashcard */
+    transform: translateY(100%); /* Start off-screen below */
+    opacity: 0;
+    pointer-events: none; /* Allow clicks through when hidden */
+    transition: transform 0.3s ease, opacity 0.3s ease; /* Smooth transition */
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+}
 
-  .close {color: red; font-size: 22px; position: absolute; top: 3%; left: 95%; margin: 0; cursor: pointer;}
+.sourceBox.show { /* This class is toggled by JS to show the box */
+    transform: translateY(0); /* Slide into view */
+    opacity: 1;
+    pointer-events: all; /* Allow clicks when shown */
+}
+
+.sourceLink {
+    color: #007bff;
+    text-decoration: none;
+    font-size: 0.95rem;
+    display: block; /* Make it a block element for better click area */
+    margin-bottom: 10px; /* Space between link and close button */
+}
+
+.sourceLink:hover {
+    text-decoration: underline;
+}
+
+.close {
+    color: #dc3545; /* Red for close button */
+    font-size: 1.5rem; /* Adjusted size */
+    font-weight: bold;
+    position: absolute; /* Position relative to sourceBox */
+    top: 5px;
+    right: 10px;
+    cursor: pointer;
+    user-select: none;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    body {
+        padding: 15px;
+    }
+
+    .flashcard {
+        width: 100%; /* Take full width on small screens */
+    }
+
+    .section-header h1 {
+        font-size: 1.5rem;
+    }
+
+    .flashcard .front,
+    .flashcard .back {
+        font-size: 1rem;
+        padding: 15px;
+    }
+
+    .source, .sound {
+        font-size: 20px;
+        bottom: 5px;
+        right: 15px;
+    }
+
+    .sourceBox {
+        width: calc(100% - 30px); /* Adjust for smaller padding */
+        left: 15px;
+    }
+}
